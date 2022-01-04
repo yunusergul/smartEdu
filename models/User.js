@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 const Scheama = mongoose.Schema;
-
 
 const UserScheama = new Scheama({
   name: {
@@ -12,9 +11,8 @@ const UserScheama = new Scheama({
     type: String,
     unique: true,
     required: true,
-
   },
-  password:{
+  password: {
     type: String,
     required: true,
   },
@@ -22,14 +20,13 @@ const UserScheama = new Scheama({
     type: Date,
     default: Date.now,
   },
-
 });
-UserScheama.pre('save', function (next){
-    const user = this;
-    bcrypt.hash(user.password, 10, (error, hash) => {
-        user.password = hash;
-        next();
-    })
-})
+UserScheama.pre("save", function (next) {
+  const user = this;
+  bcrypt.hash(user.password, 10, (error, hash) => {
+    user.password = hash;
+    next();
+  });
+});
 const Course = mongoose.model("Users", UserScheama);
 module.exports = Course;
