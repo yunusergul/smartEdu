@@ -2,7 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const pageRoute = require("./routes/pageRoute");
 const courseRoute = require("./routes/courseRoute");
-
+const categoryRoute = require("./routes/categoryRoute")
+const userRoute = require("./routes/userRoute")
 //Connect DB
 mongoose.connect("mongodb://127.0.0.1:27017/smart_edu").then(() => {
   console.log("DB Conneted Successfuly");
@@ -19,6 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/", pageRoute);
 app.use("/courses", courseRoute);
+app.use("/categories", categoryRoute);
+app.use("/users", userRoute);
 
 const port = 3000;
 app.listen(port, () => {

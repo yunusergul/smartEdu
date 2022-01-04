@@ -22,6 +22,10 @@ const CourseScheama = new Scheama({
     type: String,
     unique: true,
   },
+  category:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref:'Category'
+  }
 });
 CourseScheama.pre("validate", function (next) {
   this.slug = slugify(this.name, {

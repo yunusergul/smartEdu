@@ -1,0 +1,9 @@
+<div class="widget-categories">
+    <h3 class="widget-title">Categories</h3>
+    <ul>
+        <% for (let i=0 ; categories.length> i ; i++){ %>
+        <li><a href="/courses/?cat=<%= categories[i].name %>"><%= categories[i].name %></a></li>
+
+        <% } %>
+    </ul>
+</div>
