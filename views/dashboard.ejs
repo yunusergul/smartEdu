@@ -7,5 +7,9 @@
 <% if (user.role==='teacher' ){ %>
 	<%- include('dasboard/_teacherParts') %>
 <% } %>
+<% if (user.role==='admin' ){ %>
+	<%- include('dasboard/_adminPart') %>
+<% } %>
+
 
 <%- include('partials/_footer.ejs') %>

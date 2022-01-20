@@ -1,10 +1,15 @@
 const Course = require("../models/Course");
 const Category = require("../models/Category");
-
+const User = require("../models/User");
 exports.createCourse = async (req, res) => {
   try {
-    const course = await Course.create(req.body);
-    res.status(201).redirect('/courses')
+    const course = await Course.create({
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      users: req.session.userID,
+    });
+    res.status(201).redirect("/courses");
   } catch (err) {
     res.status(400).json({
       status: "fail",
@@ -16,17 +21,32 @@ exports.createCourse = async (req, res) => {
 exports.getAllCourses = async (req, res) => {
   try {
     const categorySlug = req.query.cat;
-    const category = await Category.findOne({slug:categorySlug})
-    let filter= {}
-    if(categorySlug ){
-      filter={category : category._id}
+    const query = req.query.search;
+    const category = await Category.findOne({ slug: categorySlug });
+    let filter = {};
+    if (categorySlug) {
+      filter = { category: category._id };
     }
-    const courses = await Course.find(filter).sort('-createdAt');;
-    const categories = await Category.find({})
-    res.status(200).render("courses", { 
-        courses,
-        categories,
-        page_name: "courses",
+    if (query) {
+      filter = { name: query };
+    }
+    if (!categorySlug && !query) {
+      filter.name = "";
+      filter.category = null;
+    }
+    const courses = await Course.find({
+      $or: [
+        { name: { $regex: ".*" + filter.name + ".*", $options: "i" } },
+        { category: filter.category },
+      ],
+    })
+      .sort("-createdAt")
+      .populate("users");
+    const categories = await Category.find({});
+    res.status(200).render("courses", {
+      courses,
+      categories,
+      page_name: "courses",
     });
   } catch (err) {
     res.status(400).json({
@@ -38,13 +58,83 @@ exports.getAllCourses = async (req, res) => {
 
 exports.getCourse = async (req, res) => {
   try {
-    const course = await Course.findOne({slug:req.params.slug});
-    const categories = await Category.find({})
-    res.status(200).render("course-single", { 
-        course,
-        categories,
-        page_name: "courses",
+    const user = await User.findById(req.session.userID);
+    const course = await Course.findOne({ slug: req.params.slug }).populate(
+      "users"
+    );
+    const categories = await Category.find({});
+    res.status(200).render("course-single", {
+      course,
+      categories,
+      page_name: "courses",
+      user,
     });
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+
+      err,
+    });
+  }
+};
+
+exports.enrollCourse = async (req, res) => {
+  try {
+    const user = await User.findById(req.session.userID);
+
+    await user.courses.push({ _id: req.body.course_id });
+
+    await user.save();
+
+    res.status(200);
+    res.redirect("/users/dashboard");
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      err,
+    });
+  }
+};
+
+exports.releaseCourse = async (req, res) => {
+  try {
+    const user = await User.findById(req.session.userID);
+
+    await user.courses.pull({ _id: req.body.course_id });
+
+    await user.save();
+
+    res.status(200);
+    res.redirect("/users/dashboard");
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      err,
+    });
+  }
+};
+
+exports.deleteCourse = async (req, res) => {
+  try {
+    const course = await Course.findOneAndRemove({ slug: req.params.slug });
+    req.flash("success", `${course.name} has been removed successfully`);
+    res.status(200).redirect("/users/dashboard");
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      err,
+    });
+  }
+};
+
+exports.updateCourse = async (req, res) => {
+  try {
+    const course = await Course.findOne({ slug: req.params.slug });
+    course.name = req.body.name;
+    course.description = req.body.description;
+    course.category = req.body.category;
+    course.save();
+    res.status(200).redirect("/users/dashboard");
   } catch (err) {
     res.status(400).json({
       status: "fail",

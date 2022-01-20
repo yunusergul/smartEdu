@@ -25,6 +25,10 @@ const CourseScheama = new Scheama({
   category:{
     type: mongoose.Schema.Types.ObjectId,
     ref:'Category'
+  },
+  users :{
+    type: mongoose.Schema.Types.ObjectId,
+    ref:'Users'
   }
 });
 CourseScheama.pre("validate", function (next) {
