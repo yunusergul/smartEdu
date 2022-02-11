@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
-const methodOverride = require('method-override')
+const methodOverride = require("method-override");
 const flash = require("connect-flash");
 const pageRoute = require("./routes/pageRoute");
 const courseRoute = require("./routes/courseRoute");
@@ -10,11 +10,14 @@ const categoryRoute = require("./routes/categoryRoute");
 const userRoute = require("./routes/userRoute");
 //Connect DB
 mongoose
-  .connect("mongodb+srv://dbUser:SIN468basKTvdqnP@cluster0.6j7rp.mongodb.net/smartEdu?retryWrites=true&w=majority", {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    autoCreate: true,
-  })
+  .connect(
+    "mongodb connection address",
+    {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+      autoCreate: true,
+    }
+  )
   .then(() => {
     console.log("DB Conneted Successfuly");
   });
@@ -36,7 +39,8 @@ app.use(
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-      mongoUrl: "mongodb+srv://dbUser:SIN468basKTvdqnP@cluster0.6j7rp.mongodb.net/smartEdu?retryWrites=true&w=majority",
+      mongoUrl:
+        "mongodb connection address",
     }),
   })
 );
@@ -47,9 +51,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(methodOverride('_method',{
-  methods: ['POST', 'GET'],
-}))
+app.use(
+  methodOverride("_method", {
+    methods: ["POST", "GET"],
+  })
+);
 
 app.use("*", (req, res, next) => {
   userIN = req.session.userID;
